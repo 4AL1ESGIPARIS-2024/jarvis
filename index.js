@@ -106,7 +106,8 @@ client.once('ready', () => {
 	});
 
 	handleCheckGrades();
-	setInterval(handleCheckGrades, 300000);
+	const THIRTY_MINUTES = 30 * 60 * 1000;
+	setInterval(handleCheckGrades, THIRTY_MINUTES);
 });
 
 client.on('interactionCreate', async (interaction) => {
