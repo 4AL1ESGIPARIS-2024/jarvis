@@ -1,4 +1,3 @@
-import { deepStrictEqual } from 'node:assert';
 import fs from 'node:fs';
 import { client } from './index.js';
 const JSON_FILE = './gradesData.json';
@@ -91,7 +90,7 @@ async function checkGradesAndUpdate() {
 		});
 
 		const isFirstRun = Object.keys(previousGrades).length === 0;
-		if (isFirstRun || deepStrictEqual(currentGradesMap, previousGrades)) {
+		if (isFirstRun || currentGradesMap === previousGrades) {
 			saveGradesData(currentGradesMap);
 			return;
 		}
