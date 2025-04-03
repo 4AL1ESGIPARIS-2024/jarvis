@@ -13,6 +13,7 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { handleSocialCredit } from "./commands/social_credit_tracker.js";
+import { initVoteMute, handleVoteMute, handleMuteVoteButton } from "./commands/vote_mute.js";
 import { getAllMessages, storeMessage } from "./commands/get_all_messages.js";
 import dotenv from "dotenv";
 import { sendNewGrades } from "./grades.js";
@@ -44,6 +45,8 @@ const client = new Client({
 	],
 	partials: [Partials.Channel, Partials.Message, Partials.User],
 });
+
+initVoteMute(client);
 
 const electionData = {
 	candidates: [],
@@ -107,6 +110,21 @@ const guildCommands = [
 				.setName("utilisateur")
 				.setDescription("Utilisateur à tracker")
 				.setRequired(true),
+		),
+	new SlashCommandBuilder()
+		.setName("vote_mute")
+		.setDescription("Lance un vote pour muter un utilisateur")
+		.addUserOption((option) =>
+			option
+				.setName("utilisateur")
+				.setDescription("Utilisateur à potentiellement muter")
+				.setRequired(true)
+		)
+		.addIntegerOption((option) =>
+			option
+				.setName("duree")
+				.setDescription("Durée du sondage en minutes")
+				.setRequired(false)
 		),
 ].map((command) => command.toJSON());
 
@@ -180,6 +198,9 @@ client.on("interactionCreate", async (interaction) => {
 				case "social_credit":
 					await handleSocialCredit(interaction);
 					break;
+				case "vote_mute":
+					await handleVoteMute(interaction);
+					break;
 				default:
 					await interaction.reply({
 						content: "Commande inconnue.",
@@ -189,22 +210,26 @@ client.on("interactionCreate", async (interaction) => {
 			}
 		} else if (interaction.isButton()) {
 			const customId = interaction.customId;
-			switch (customId) {
-				case "start_vote":
-					await handleStartVote(interaction);
-					break;
-				case "confirm_vote":
-					await handleConfirmVote(interaction);
-					break;
-				case "cancel_vote":
-					await handleCancelVote(interaction);
-					break;
-				default:
-					await interaction.reply({
-						content: "Action inconnue.",
-						ephemeral: true,
-					});
-					break;
+			if (customId.startsWith('mute_')) {
+				await handleMuteVoteButton(interaction);
+			} else {
+				switch (customId) {
+					case "start_vote":
+						await handleStartVote(interaction);
+						break;
+					case "confirm_vote":
+						await handleConfirmVote(interaction);
+						break;
+					case "cancel_vote":
+						await handleCancelVote(interaction);
+						break;
+					default:
+						await interaction.reply({
+							content: "Action inconnue.",
+							ephemeral: true,
+						});
+						break;
+				}
 			}
 		} else if (interaction.isStringSelectMenu()) {
 			const customId = interaction.customId;
