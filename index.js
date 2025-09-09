@@ -103,15 +103,6 @@ const guildCommands = [
 		.setName("relance")
 		.setDescription("Mentionne chaque personne qui n'a pas encore voté"),
 	new SlashCommandBuilder()
-		.setName("social_credit")
-		.setDescription("Vérifie le crédit social de l'utilisateur mentionné")
-		.addUserOption((option) =>
-			option
-				.setName("utilisateur")
-				.setDescription("Utilisateur à tracker")
-				.setRequired(true),
-		),
-	new SlashCommandBuilder()
 		.setName("vote_mute")
 		.setDescription("Lance un vote pour muter un utilisateur")
 		.addUserOption((option) =>
@@ -148,32 +139,6 @@ const rest = new REST({ version: "10" }).setToken(
 	}
 })();
 
-client.once("ready", () => {
-	console.log(`Connecté en tant que ${client.user.tag}`);
-	client.user.setPresence({
-		activities: [{ name: `Version ${process.env.BOT_VERSION}` }],
-		status: "online",
-	});
-
-	getAllMessages(client);
-
-	try {
-		sendNewGrades(client);
-	} catch (e) {
-		console.err("error checking for new grades");
-		console.error(e);
-	}
-
-	const TEN_MINUTES_MILLISECONDS = 600000;
-	setInterval(() => {
-		try {
-			sendNewGrades(client);
-		} catch (e) {
-			console.err("error checking for new grades");
-			console.error(e);
-		}
-	}, TEN_MINUTES_MILLISECONDS);
-});
 
 client.on("interactionCreate", async (interaction) => {
 	try {
@@ -194,9 +159,6 @@ client.on("interactionCreate", async (interaction) => {
 					break;
 				case "relance":
 					await handleRelance(interaction);
-					break;
-				case "social_credit":
-					await handleSocialCredit(interaction);
 					break;
 				case "vote_mute":
 					await handleVoteMute(interaction);
@@ -261,12 +223,6 @@ client.on("interactionCreate", async (interaction) => {
 		}
 	}
 });
-
-client.on("messageCreate", async (message) => {
-	if (message.author.bot) return;
-
-	storeMessage(message, client);
-})
 
 async function handleNonVotants(interaction) {
 	if (
