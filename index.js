@@ -12,11 +12,8 @@ import {
 	ButtonStyle,
 	SlashCommandBuilder,
 } from "discord.js";
-import { handleSocialCredit } from "./commands/social_credit_tracker.js";
 import { initVoteMute, handleVoteMute, handleMuteVoteButton } from "./commands/vote_mute.js";
-import { getAllMessages, storeMessage } from "./commands/get_all_messages.js";
 import dotenv from "dotenv";
-import { sendNewGrades } from "./grades.js";
 dotenv.config();
 
 const requiredEnvVariables = [
