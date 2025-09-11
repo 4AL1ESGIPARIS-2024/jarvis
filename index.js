@@ -233,8 +233,6 @@ client.on("interactionCreate", async (interaction) => {
 client.once("ready", async () => {
 		const messages = await getChannelMessages('1414516117669417040');
 		const enloccurenceMessages = messages.filter(m => m.author.id === '235803087703375872'  && m.content === '+1');
-	    
-	    console.log(enloccurenceMessages, enloccurenceMessages.lenght);
 
 		occurenceCounter = enloccurenceMessages.length;
 });
