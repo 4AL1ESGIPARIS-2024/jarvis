@@ -16,6 +16,8 @@ import { initVoteMute, handleVoteMute, handleMuteVoteButton } from "./commands/v
 import dotenv from "dotenv";
 dotenv.config();
 
+let occurenceCounter = 0;
+
 const requiredEnvVariables = [
 	"DISCORD_BOT_TOKEN",
 	"CLIENT_ID",
@@ -226,6 +228,25 @@ client.on("interactionCreate", async (interaction) => {
 		}
 	}
 });
+
+// On start
+client.once("ready", async () => {
+		const messages = await getChannelMessages('1414516117669417040');
+		const enloccurenceMessages = messages.filter(m => m.author.id === '235803087703375872'  && m.content === '+1');
+	    
+	    console.log(enloccurenceMessages, enloccurenceMessages.lenght);
+
+		occurenceCounter = enloccurenceMessages.length;
+});
+
+// On message
+client.on("messageCreate", async (message) => {
+	if (message.author.bot) return;
+	if (message.content === "+1" && message.author.id === "235803087703375872") {
+		occurenceCounter++;
+	}
+});
+
 
 async function handleNonVotants(interaction) {
 	if (
@@ -757,16 +778,12 @@ async function endElection(channel) {
 }
 
 async function handleEnLoccurence(interaction) {
-		const messages = await getChannelMessages('1414516117669417040');
-		const enloccurenceMessages = messages.filter(m => m.author.id === '235803087703375872' && m.content === '+1');
-	    
-	    console.log(enloccurenceMessages, enloccurenceMessages.lenght);
-
-		await interaction.reply({
-			content: `Mr Trancho a prononcé "En l'occurence" ${enloccurenceMessages.length} fois.`,
-		});
-
-	}
+		
+	await interaction.reply({
+		content: `M. Trancho a dit "En l'occurence" ${occurenceCounter} fois.`,
+		ephemeral: true,
+	});
+}
 
 	async function getChannelMessages(channelId) {
 		const channel = await client.channels.fetch(channelId);
