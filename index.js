@@ -119,6 +119,15 @@ const guildCommands = [
 		new SlashCommandBuilder()
 		.setName("enloccurence")
 		.setDescription("Nombre de fois ou Mr Trancho a prononcé \"En l'occurence\""),
+		new SlashCommandBuilder()
+		.setName("8ball")
+		.setDescription("Pose une question à la boule magique")
+		.addStringOption((option) =>
+			option
+				.setName("question")
+				.setDescription("Votre question pour la boule magique")
+				.setRequired(true)
+		),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(
@@ -167,6 +176,9 @@ client.on("interactionCreate", async (interaction) => {
 					break;
 				case "enloccurence":
 					await handleEnLoccurence(interaction);
+					break;
+				case "8ball":
+					await handle8Ball(interaction);
 					break;
 				default:
 					await interaction.reply({
@@ -783,23 +795,55 @@ async function handleEnLoccurence(interaction) {
 	});
 }
 
-	async function getChannelMessages(channelId) {
-		const channel = await client.channels.fetch(channelId);
-		let messages = [];
-		let lastId = null;
-		while (true) {
-			const options = { limit: 100 };
-			if (lastId) {
-				options.before = lastId;
-			}
-			const fetchedMessages = await channel.messages.fetch(options);
-			if (fetchedMessages.size === 0) {
-				break;
-			}
-			messages = messages.concat(Array.from(fetchedMessages.values()));
-			lastId = fetchedMessages.last().id;
+async function handle8Ball(interaction) {
+	const question = interaction.options.getString("question", true);
+	
+	// Réponses possibles de la boule magique
+	const responses = [
+		"Oui",
+		"Non", 
+		"Peut-être…",
+		"Oui",
+		"Non",
+		"Peut-être…",
+		"Oui",
+		"Non",
+		"Peut-être…",
+		"Oui",
+		"Non",
+		"Peut-être…"
+	];
+	
+	// Sélectionner une réponse aléatoire
+	const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+	
+	const embed = new EmbedBuilder()
+		.setTitle("🔮 Boule Magique")
+		.setDescription(`**Question:** ${question}\n\n**Réponse:** ${randomResponse}`)
+		.setColor(0x9932cc)
+		.setFooter({ text: `Demandé par ${interaction.user.username}` })
+		.setTimestamp();
+	
+	await interaction.reply({ embeds: [embed] });
+}
+
+async function getChannelMessages(channelId) {
+	const channel = await client.channels.fetch(channelId);
+	let messages = [];
+	let lastId = null;
+	while (true) {
+		const options = { limit: 100 };
+		if (lastId) {
+			options.before = lastId;
 		}
-		return messages;
+		const fetchedMessages = await channel.messages.fetch(options);
+		if (fetchedMessages.size === 0) {
+			break;
+		}
+		messages = messages.concat(Array.from(fetchedMessages.values()));
+		lastId = fetchedMessages.last().id;
 	}
+	return messages;
+}
 
 client.login(process.env.DISCORD_BOT_TOKEN);
