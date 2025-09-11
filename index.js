@@ -14,6 +14,7 @@ import {
 } from "discord.js";
 import { initVoteMute, handleVoteMute, handleMuteVoteButton } from "./commands/vote_mute.js";
 import dotenv from "dotenv";
+import { getAllMessages, storeMessage } from "./commands/get_all_messages.js";
 dotenv.config();
 
 let occurenceCounter = 0;
@@ -119,6 +120,15 @@ const guildCommands = [
 		new SlashCommandBuilder()
 		.setName("enloccurence")
 		.setDescription("Nombre de fois ou Mr Trancho a prononcé \"En l'occurence\""),
+		new SlashCommandBuilder()
+		.setName("social_credit")
+		.setDescription("Vérifie le crédit social de l'utilisateur mentionné")
+		.addUserOption((option) =>
+			option
+				.setName("utilisateur")
+				.setDescription("Utilisateur à tracker")
+				.setRequired(true),
+		),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(
@@ -167,6 +177,9 @@ client.on("interactionCreate", async (interaction) => {
 					break;
 				case "enloccurence":
 					await handleEnLoccurence(interaction);
+					break;
+				case "social_credit":
+					await handleSocialCredit(interaction);
 					break;
 				default:
 					await interaction.reply({
@@ -231,6 +244,7 @@ client.on("interactionCreate", async (interaction) => {
 
 // On start
 client.once("ready", async () => {
+		getAllMessages(client);
 		const messages = await getChannelMessages('1414516117669417040');
 		const enloccurenceMessages = messages.filter(m => m.author.id === '235803087703375872'  && m.content === '+1');
 
@@ -240,6 +254,7 @@ client.once("ready", async () => {
 // On message
 client.on("messageCreate", async (message) => {
 	if (message.author.bot) return;
+	storeMessage(message, client);
 	if (message.content === "+1" && message.author.id === "235803087703375872") {
 		occurenceCounter++;
 	}
