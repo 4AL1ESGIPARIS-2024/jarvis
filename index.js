@@ -114,6 +114,9 @@ const guildCommands = [
 				.setDescription("Durée du sondage en minutes")
 				.setRequired(false)
 		),
+		new SlashCommandBuilder()
+		.setName("enloccurence")
+		.setDescription("Nombre de fois ou Mr Trancho a prononcé \"En l'occurence\""),
 ].map((command) => command.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(
@@ -159,6 +162,9 @@ client.on("interactionCreate", async (interaction) => {
 					break;
 				case "vote_mute":
 					await handleVoteMute(interaction);
+					break;
+				case "enloccurence":
+					await handleEnLoccurence(interaction);
 					break;
 				default:
 					await interaction.reply({
@@ -749,5 +755,36 @@ async function endElection(channel) {
 		announcementChannelId: null,
 	});
 }
+
+async function handleEnLoccurence(interaction) {
+		const messages = await getChannelMessages('1414516117669417040');
+		const enloccurenceMessages = messages.filter(m => m.author.id === '235803087703375872' && m.content === '+1');
+	    
+	    console.log(enloccurenceMessages, enloccurenceMessages.lenght);
+
+		await interaction.reply({
+			content: `Mr Trancho a prononcé "En l'occurence" ${enloccurenceMessages.length} fois.`,
+		});
+
+	}
+
+	async function getChannelMessages(channelId) {
+		const channel = await client.channels.fetch(channelId);
+		let messages = [];
+		let lastId = null;
+		while (true) {
+			const options = { limit: 100 };
+			if (lastId) {
+				options.before = lastId;
+			}
+			const fetchedMessages = await channel.messages.fetch(options);
+			if (fetchedMessages.size === 0) {
+				break;
+			}
+			messages = messages.concat(Array.from(fetchedMessages.values()));
+			lastId = fetchedMessages.last().id;
+		}
+		return messages;
+	}
 
 client.login(process.env.DISCORD_BOT_TOKEN);
