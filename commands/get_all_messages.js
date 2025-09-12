@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync } from "node:fs";
 import { getInsultsInMessage } from "./social_credit_tracker.js";
 
-export const CACHE_PATH = "./cache/messages.json";
+export const CACHE_PATH = ".cache/messages.json";
 
 const getChannels = async (guild) => await guild.channels
 	.fetch()
