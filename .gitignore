@@ -3,4 +3,4 @@ node_modules/
 .idea
 
 previousGrades.*
-/cache/messages.json
+.cache/messages.json
