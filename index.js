@@ -258,6 +258,9 @@ client.on("messageCreate", async (message) => {
 	if (message.content === "+1" && message.author.id === "235803087703375872") {
 		occurenceCounter++;
 	}
+	if (message.content.toLowerCase().includes("quoi")) {
+		await message.channel.send("FEUUUUUUUUUUR");
+	}
 });
 
 
